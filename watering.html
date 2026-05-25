@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Watering System</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#e8f5e9;
+    color:#222;
+}
+
+/* HEADER */
+header{
+    background:#2e7d32;
+    color:white;
+    padding:20px;
+    text-align:center;
+}
+
+header h1{
+    font-size:35px;
+}
+
+/* DASHBOARD */
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:white;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.2);
+    text-align:center;
+}
+
+.card h2{
+    margin-bottom:15px;
+    color:#2e7d32;
+}
+
+.value{
+    font-size:40px;
+    font-weight:bold;
+    margin:15px 0;
+}
+
+button{
+    padding:12px 20px;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    font-size:16px;
+    font-weight:bold;
+}
+
+.start{
+    background:#2e7d32;
+    color:white;
+}
+
+.stop{
+    background:#c62828;
+    color:white;
+}
+
+.auto{
+    background:#1565c0;
+    color:white;
+}
+
+.status{
+    font-size:22px;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+/* LOGS */
+.logs{
+    margin:20px;
+    background:white;
+    border-radius:10px;
+    padding:20px;
+    box-shadow:0 3px 8px rgba(0,0,0,0.2);
+}
+
+.logs h2{
+    color:#2e7d32;
+    margin-bottom:15px;
+}
+
+#logList{
+    max-height:250px;
+    overflow:auto;
+}
+
+.log{
+    background:#f1f8e9;
+    padding:10px;
+    border-left:5px solid #2e7d32;
+    margin-bottom:10px;
+}
+
+/* FOOTER */
+footer{
+    background:#2e7d32;
+    color:white;
+    text-align:center;
+    padding:15px;
+    margin-top:20px;
+}
+
+@media(max-width:768px){
+    .value{
+        font-size:30px;
+    }
+}
+</style>
+</head>
+<body>
+
+<header>
+    <h1>🌱 Smart Watering System</h1>
+    <p>Automatic Plant Irrigation Dashboard</p>
+</header>
+
+<div class="dashboard">
+
+    <!-- SOIL -->
+    <div class="card">
+        <h2>Soil Moisture</h2>
+        <div class="value" id="moisture">65%</div>
+    </div>
+
+    <!-- WATER LEVEL -->
+    <div class="card">
+        <h2>Water Tank</h2>
+        <div class="value" id="waterLevel">90%</div>
+    </div>
+
+    <!-- TEMPERATURE -->
+    <div class="card">
+        <h2>Temperature</h2>
+        <div class="value" id="temp">28°C</div>
+    </div>
+
+    <!-- PUMP CONTROL -->
+    <div class="card">
+        <h2>Water Pump</h2>
+
+        <button class="start" onclick="startPump()">
+            Start Pump
+        </button>
+
+        <button class="stop" onclick="stopPump()">
+            Stop Pump
+        </button>
+
+        <br><br>
+
+        <button class="auto" onclick="toggleAutoMode()">
+            Auto Mode
+        </button>
+
+        <div class="status" id="pumpStatus">
+            OFF
+        </div>
+    </div>
+
+</div>
+
+<!-- LOG SECTION -->
+<div class="logs">
+    <h2>System Logs</h2>
+
+    <div id="logList"></div>
+</div>
+
+<footer>
+    Smart Watering System Using HTML, CSS, JavaScript & Node.js Ready
+</footer>
+
+<script>
+
+// SYSTEM DATA
+let moisture = 65;
+let waterLevel = 90;
+let temperature = 28;
+
+let pumpOn = false;
+let autoMode = false;
+
+// ELEMENTS
+const moistureEl = document.getElementById("moisture");
+const waterLevelEl = document.getElementById("waterLevel");
+const tempEl = document.getElementById("temp");
+const pumpStatusEl = document.getElementById("pumpStatus");
+const logList = document.getElementById("logList");
+
+// UPDATE DISPLAY
+function updateDisplay(){
+
+    moistureEl.innerText = moisture + "%";
+    waterLevelEl.innerText = waterLevel + "%";
+    tempEl.innerText = temperature + "°C";
+
+    pumpStatusEl.innerText = pumpOn ? "ON" : "OFF";
+    pumpStatusEl.style.color = pumpOn ? "green" : "red";
+}
+
+// START PUMP
+function startPump(){
+
+    if(waterLevel <= 0){
+        addLog("Cannot start pump. Water tank empty.");
+        return;
+    }
+
+    pumpOn = true;
+
+    addLog("Water pump started.");
+    updateDisplay();
+}
+
+// STOP PUMP
+function stopPump(){
+
+    pumpOn = false;
+
+    addLog("Water pump stopped.");
+    updateDisplay();
+}
+
+// AUTO MODE
+function toggleAutoMode(){
+
+    autoMode = !autoMode;
+
+    addLog("Auto Mode: " + (autoMode ? "Enabled" : "Disabled"));
+}
+
+// LOG FUNCTION
+function addLog(message){
+
+    const div = document.createElement("div");
+
+    div.className = "log";
+
+    const time = new Date().toLocaleTimeString();
+
+    div.innerHTML = `<strong>${time}</strong> - ${message}`;
+
+    logList.prepend(div);
+}
+
+// SENSOR SIMULATION
+setInterval(() => {
+
+    // RANDOM SENSOR CHANGES
+    moisture -= Math.random() * 3;
+
+    temperature = Math.floor(25 + Math.random() * 10);
+
+    // WHEN PUMP IS ON
+    if(pumpOn){
+
+        moisture += 4;
+
+        waterLevel -= 1;
+
+        if(waterLevel <= 0){
+
+            waterLevel = 0;
+
+            stopPump();
+
+            addLog("Tank empty. Pump stopped automatically.");
+        }
+    }
+
+    // LIMITS
+    if(moisture > 100) moisture = 100;
+
+    if(moisture < 0) moisture = 0;
+
+    // AUTO MODE CONTROL
+    if(autoMode){
+
+        if(moisture < 40 && !pumpOn){
+
+            startPump();
+
+            addLog("Auto Mode activated pump.");
+        }
+
+        if(moisture > 70 && pumpOn){
+
+            stopPump();
+
+            addLog("Auto Mode stopped pump.");
+        }
+    }
+
+    updateDisplay();
+
+}, 2000);
+
+// INITIAL
+updateDisplay();
+
+addLog("System started successfully.");
+
+</script>
+
+</body>
+</html>
